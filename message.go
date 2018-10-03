@@ -9,10 +9,10 @@ import (
 	"github.com/crossle/hacker-news-mixin-bot/config"
 	"github.com/crossle/hacker-news-mixin-bot/models"
 )
-
+// impl of bot MessageListener
 type ResponseMessage struct {
 }
-
+// message cmd parse
 func (r ResponseMessage) OnMessage(ctx context.Context, mc *bot.MessageContext, msg bot.MessageView, uid string) error {
 	if msg.Category != bot.MessageCategorySystemAccountSnapshot && msg.Category != bot.MessageCategorySystemConversation && msg.ConversationId == bot.UniqueConversationId(config.MixinClientId, msg.UserId) {
 		if msg.Category == "PLAIN_TEXT" {

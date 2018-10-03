@@ -45,7 +45,7 @@ func RemoveSubscriber(ctx context.Context, userId string) error {
 	}
 	return nil
 }
-
+// find all Subscribers 
 func FindSubscribers(ctx context.Context) ([]*Subscriber, error) {
 	var users []*Subscriber
 	rows, err := session.Database(ctx).Query("select user_id, created_at from subscribers")

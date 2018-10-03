@@ -16,7 +16,7 @@ type Hub struct {
 
 func NewHub(db *sql.DB) *Hub {
 	hub := &Hub{services: make(map[string]Service)}
-	hub.context = session.WithDatabase(context.Background(), db)
+	hub.context = session.WithDatabase(context.Background(), db) // 
 	hub.registerServices()
 	return hub
 }

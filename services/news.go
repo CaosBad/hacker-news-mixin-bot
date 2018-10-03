@@ -16,7 +16,7 @@ import (
 type NewsService struct{}
 
 type Stats struct {
-	prevStoryId int
+	prevStoryId int // lastest news id
 }
 
 func (self Stats) getPrevTopStoryId() int {
@@ -28,12 +28,12 @@ func (self *Stats) updatePrevTopStoryId(id int) {
 }
 
 func getTopStoryId() int {
-	topStories, _ := h.GetStories("top")
+	topStories, _ := h.GetStories("top") // get top item
 	return topStories[0]
 }
 
 func getTopTenStories() []int {
-	stories, _ := h.GetStories("top")
+	stories, _ := h.GetStories("top") // hacker news api get news
 	topTen := stories[:10]
 	sort.Ints(topTen)
 	return topTen
@@ -44,14 +44,16 @@ func sendTopStoryToChannel(ctx context.Context, stats *Stats) {
 	topTenStories := getTopTenStories()
 	for _, storyId := range topTenStories {
 		if storyId > prevStoryId {
-			story, _ := h.GetItem(storyId)
+			story, _ := h.GetItem(storyId) // get story by id
 			log.Printf("Sending top story to channel...")
 			stats.updatePrevTopStoryId(story.ID)
-			subscribers, _ := models.FindSubscribers(ctx)
-			for _, subscriber := range subscribers {
-				conversationId := bot.UniqueConversationId(config.MixinClientId, subscriber.UserId)
-				data := base64.StdEncoding.EncodeToString([]byte(story.Title + " " + story.URL))
+			subscribers, _ := models.FindSubscribers(ctx) // query subscribers
+			for _, subscriber := range subscribers 
+				conversationId := bot.UniqueConversationId(config.MixinClientId, subscriber.UserId) // get mixin conversationId 
+				data := base64.StdEncoding.EncodeToString([]byte(story.Title + " " + story.URL)) // assembling news
+				// 
 				bot.PostMessage(ctx, conversationId, subscriber.UserId, bot.UuidNewV4().String(), "PLAIN_TEXT", data, config.MixinClientId, config.MixinSessionId, config.MixinPrivateKey)
+
 			}
 		} else {
 			log.Printf("Same top story ID: %d, no message sent.", storyId)
@@ -61,6 +63,6 @@ func sendTopStoryToChannel(ctx context.Context, stats *Stats) {
 func (service *NewsService) Run(ctx context.Context) error {
 	stats := &Stats{getTopStoryId()}
 	gocron.Every(5).Minutes().Do(sendTopStoryToChannel, ctx, stats)
-	<-gocron.Start()
+	<-gocron.Start() // start cron 
 	return nil
 }

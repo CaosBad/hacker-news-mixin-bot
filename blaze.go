@@ -12,16 +12,16 @@ import (
 
 	bot "github.com/MixinNetwork/bot-api-go-client"
 )
-
+// 持续链接
 func StartBlaze(db *sql.DB) error {
 	log.Println("start blaze")
 	logger, err := durable.NewLoggerClient("", true)
 	if err != nil {
 		return err
 	}
-	defer logger.Close()
+	defer logger.Close() // 关闭 log
 	ctx, cancel := newBlazeContext(db, logger)
-	defer cancel()
+	defer cancel() // 关闭 ws 链接
 
 	for {
 		if err := bot.Loop(ctx, ResponseMessage{}, config.MixinClientId, config.MixinSessionId, config.MixinPrivateKey); err != nil {
